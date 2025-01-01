@@ -28,11 +28,7 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-//    @GetMapping("/messages")
-//    public ResponseEntity<List<Message>> getAllMessages() {
-//        List<Message> messages = messageService.getAllMessages();
-//        return ResponseEntity.ok(messages);
-//    }
+
 
 
     @GetMapping("/messages")
