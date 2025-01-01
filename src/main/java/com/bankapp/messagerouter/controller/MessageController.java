@@ -69,26 +69,6 @@ public class MessageController {
         }
     }
 
-//
-//    @PostMapping("/message/send")
-//    public ResponseEntity<Message> sendMessage(@Valid @RequestBody MessageRequest messageRequest) {
-//        try {
-//            // Créer et envoyer le message
-//            Message message = messageService.sendMessage(
-//                    messageRequest.getContent(),
-//                    messageRequest.getSender(),
-//                    messageRequest.getReceiver()
-//            );
-//
-//            // Retourner une réponse HTTP 201 avec l'objet message créé
-//            return new ResponseEntity<>(message, HttpStatus.CREATED);
-//
-//        } catch (Exception e) {
-//            // Gérer les erreurs et retourner une réponse HTTP 400
-//            log.error("Failed to send message: {}", e.getMessage(), e);
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//    }
 
     @PostMapping("/message/send")
     public ResponseEntity<Message> sendMessage(@Valid @RequestBody MessageRequest messageRequest) {
