@@ -1,7 +1,9 @@
 package com.bankapp.messagerouter.controller;
 
+import com.bankapp.messagerouter.dto.MessageRequest;
 import com.bankapp.messagerouter.entity.Message;
 import com.bankapp.messagerouter.service.MessageService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
+@Slf4j
 public class MessageController {
 
     private final MessageService messageService;
@@ -65,6 +68,30 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
         }
     }
+
+
+    @PostMapping("/message/send")
+    public ResponseEntity<Message> sendMessage(@Valid @RequestBody MessageRequest messageRequest) {
+        try {
+            // Créer et envoyer le message
+            Message message = messageService.sendMessage(
+                    messageRequest.getContent(),
+                    messageRequest.getSender(),
+                    messageRequest.getReceiver()
+            );
+
+            // Retourner une réponse HTTP 201 avec l'objet message créé
+            return new ResponseEntity<>(message, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            // Gérer les erreurs et retourner une réponse HTTP 400
+            log.error("Failed to send message: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
 
 
 
