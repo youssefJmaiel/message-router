@@ -44,4 +44,13 @@ public class PartnerController {
         return ResponseEntity.noContent().build();  // Return 204 No Content for successful deletion
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Partner> editPartner(
+            @PathVariable Long id,
+            @RequestBody Partner updatedPartner
+    ) {
+        Partner editedPartner = partnerService.editPartner(id, updatedPartner);
+        return ResponseEntity.ok(editedPartner);
+    }
+
 }

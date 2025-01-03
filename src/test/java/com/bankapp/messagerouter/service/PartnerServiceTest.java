@@ -2,12 +2,16 @@ package com.bankapp.messagerouter.service;
 
 
 import com.bankapp.messagerouter.entity.Partner;
+import com.bankapp.messagerouter.entity.PartnerDirection;
+import com.bankapp.messagerouter.entity.PartnerType;
+import com.bankapp.messagerouter.entity.ProcessedFlowType;
 import com.bankapp.messagerouter.repository.PartnerRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -75,5 +79,42 @@ public class PartnerServiceTest {
 
         // Verify that deleteById is never called
         verify(partnerRepository, times(0)).deleteById(partnerId);
+    }
+
+    @Test
+    void testEditPartner() {
+        Long partnerId = 1L;
+
+        Partner existingPartner = new Partner();
+        existingPartner.setId(partnerId);
+        existingPartner.setAlias("Alias1");
+        existingPartner.setType(PartnerType.MESSAGE);
+        existingPartner.setDirection(PartnerDirection.INBOUND);
+        existingPartner.setApplication("App1");
+        existingPartner.setProcessedFlowType(ProcessedFlowType.MESSAGE);
+        existingPartner.setDescription("Description1");
+
+        Partner updatedPartner = new Partner();
+        updatedPartner.setAlias("NewAlias");
+        updatedPartner.setType(PartnerType.NOTIFICATION);
+        updatedPartner.setDirection(PartnerDirection.OUTBOUND);
+        updatedPartner.setApplication("NewApp");
+        updatedPartner.setProcessedFlowType(ProcessedFlowType.ALERTING);
+        updatedPartner.setDescription("Updated Description");
+
+        when(partnerRepository.findById(partnerId)).thenReturn(Optional.of(existingPartner));
+        when(partnerRepository.save(any(Partner.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Partner result = partnerService.editPartner(partnerId, updatedPartner);
+
+        assertEquals(updatedPartner.getAlias(), result.getAlias());
+        assertEquals(updatedPartner.getType(), result.getType());
+        assertEquals(updatedPartner.getDirection(), result.getDirection());
+        assertEquals(updatedPartner.getApplication(), result.getApplication());
+        assertEquals(updatedPartner.getProcessedFlowType(), result.getProcessedFlowType());
+        assertEquals(updatedPartner.getDescription(), result.getDescription());
+
+        verify(partnerRepository).findById(partnerId);
+        verify(partnerRepository).save(any(Partner.class));
     }
 }

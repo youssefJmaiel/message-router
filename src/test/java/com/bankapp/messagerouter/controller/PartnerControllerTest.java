@@ -8,17 +8,20 @@ import com.bankapp.messagerouter.entity.ProcessedFlowType;
 import com.bankapp.messagerouter.service.PartnerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -33,6 +36,7 @@ public class PartnerControllerTest {
 
     @MockBean
     private PartnerService partnerService;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -95,6 +99,37 @@ public void testAddPartner() throws Exception {
 
         mockMvc.perform(delete("/api/partners/{id}", partnerId))
                 .andExpect(status().isNotFound());  // Expect 404 Not Found
+    }
+
+    @Test
+    void testEditPartner() throws Exception {
+        Long partnerId = 1L;
+
+        Partner updatedPartner = new Partner();
+        updatedPartner.setAlias("NewAlias");
+        updatedPartner.setType(PartnerType.MESSAGE);
+        updatedPartner.setDirection(PartnerDirection.OUTBOUND);
+        updatedPartner.setApplication("NewApp");
+        updatedPartner.setProcessedFlowType(ProcessedFlowType.ALERTING);
+        updatedPartner.setDescription("Updated Description");
+
+        Mockito.when(partnerService.editPartner(Mockito.eq(partnerId), Mockito.any(Partner.class)))
+                .thenAnswer(invocation -> {
+                    Partner inputPartner = invocation.getArgument(1);
+                    inputPartner.setId(partnerId);
+                    return inputPartner;
+                });
+
+        mockMvc.perform(put("/api/partners/{id}", partnerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedPartner)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.alias").value("NewAlias"))
+                .andExpect(jsonPath("$.type").value("MESSAGE"))
+                .andExpect(jsonPath("$.direction").value("OUTBOUND"))
+                .andExpect(jsonPath("$.application").value("NewApp"))
+                .andExpect(jsonPath("$.processedFlowType").value("ALERTING"))
+                .andExpect(jsonPath("$.description").value("Updated Description"));
     }
 
 
