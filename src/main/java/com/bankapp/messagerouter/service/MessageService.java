@@ -31,7 +31,7 @@ public class MessageService {
 //    private String queue;
 
 
-    @Value("${spring.jms.queue.name}")
+    @Value("${ibm.mq.inputQueue}")
     private String queue;
 
     private final MessageRepository messageRepository;
