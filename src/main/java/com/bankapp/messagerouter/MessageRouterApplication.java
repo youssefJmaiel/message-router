@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(scanBasePackages = "com.bankapp.messagerouter")
-@ComponentScan(basePackages = {"com.bankapp.messagerouter.service","com.bankapp.messagerouter.controller","com.bankapp.messagerouter.entity","com.bankapp.messagerouter.repository","com.bankapp.messagerouter"})
+@ComponentScan(basePackages = {"com.bankapp.messagerouter.service","com.bankapp.messagerouter.dto","com.bankapp.messagerouter.controller","com.bankapp.messagerouter.entity","com.bankapp.messagerouter.repository","com.bankapp.messagerouter"})
 public class MessageRouterApplication {
 
 	public static void main(String[] args) {

@@ -86,6 +86,22 @@ public class MessageController {
 
 
 
+    @PutMapping("/message/{id}")
+    public ResponseEntity<Message> editMessage(
+            @PathVariable Long id,
+            @RequestBody MessageRequest messageRequest) {
+
+        // Appel au service pour modifier le message
+        Message updatedMessage = messageService.editMessage(
+                id,
+                messageRequest.getContent(),
+                messageRequest.getSender(),
+                messageRequest.getReceiver()
+        );
+
+        return ResponseEntity.ok(updatedMessage);
+    }
+
 
 
 

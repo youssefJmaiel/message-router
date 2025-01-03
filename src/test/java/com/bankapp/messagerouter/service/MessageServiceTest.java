@@ -153,6 +153,47 @@ void testSaveMessage() {
 
 
 
+    @Test
+    void editMessage_shouldUpdateAndSaveMessage() {
+        // Arrange
+        Long messageId = 1L;
+        Message existingMessage = new Message();
+        existingMessage.setId(messageId);
+        existingMessage.setContent("Old Content");
+        existingMessage.setSender("Old Sender");
+        existingMessage.setReceiver("Old Receiver");
+        existingMessage.setTimestamp(LocalDateTime.now());
+
+        when(messageRepository.findById(messageId)).thenReturn(Optional.of(existingMessage));
+        when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        String newContent = "Updated Content";
+        String newSender = "Updated Sender";
+        String newReceiver = "Updated Receiver";
+
+        // Act
+        Message updatedMessage = messageService.editMessage(messageId, newContent, newSender, newReceiver);
+
+        // Assert
+        assertNotNull(updatedMessage);
+        assertEquals(newContent, updatedMessage.getContent());
+        assertEquals(newSender, updatedMessage.getSender());
+        assertEquals(newReceiver, updatedMessage.getReceiver());
+        verify(messageRepository, times(1)).findById(messageId);
+        verify(messageRepository, times(1)).save(existingMessage);
+    }
+
+    @Test
+    void editMessage_shouldThrowException_whenMessageNotFound() {
+        // Arrange
+        Long messageId = 1L;
+        when(messageRepository.findById(messageId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> messageService.editMessage(messageId, "New Content", "New Sender", "New Receiver"));
+        verify(messageRepository, times(1)).findById(messageId);
+        verify(messageRepository, never()).save(any(Message.class));
+    }
 
 
 

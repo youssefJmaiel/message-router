@@ -1,8 +1,10 @@
 package com.bankapp.messagerouter.controller;
 
+import com.bankapp.messagerouter.dto.MessageRequest;
 import com.bankapp.messagerouter.entity.Message;
 import com.bankapp.messagerouter.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -14,15 +16,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +42,13 @@ class MessageControllerTest {
 
     @InjectMocks
     private MessageController messageController;
+
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
+    }
 
     public MessageControllerTest() {
         MockitoAnnotations.openMocks(this);
@@ -104,5 +115,40 @@ class MessageControllerTest {
         mockMvc.perform(delete("/api/message/{id}", messageId))
                 .andExpect(status().isNotFound()); // Attendre 404 Not Found
     }
+
+
+
+    @Test
+    void testEditMessage() throws Exception {
+        Long messageId = 1L;
+        MessageRequest messageRequest = new MessageRequest();
+        messageRequest.setContent("Updated content");
+        messageRequest.setSender("sender@example.com");
+        messageRequest.setReceiver("receiver@example.com");
+
+        // Créez un objet Message simulé comme réponse du service
+        Message updatedMessage = new Message();
+        updatedMessage.setId(messageId);
+        updatedMessage.setContent(messageRequest.getContent());
+        updatedMessage.setSender(messageRequest.getSender());
+        updatedMessage.setReceiver(messageRequest.getReceiver());
+
+        // Simulez le comportement du service
+        when(messageService.editMessage(messageId, messageRequest.getContent(), messageRequest.getSender(), messageRequest.getReceiver()))
+                .thenReturn(updatedMessage);
+
+        // Effectuez la requête PUT et vérifiez la réponse
+        mockMvc.perform(put("/api/message/{id}", messageId)  // Assurez-vous d'inclure "/api" si nécessaire
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(messageRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(messageId))
+                .andExpect(jsonPath("$.content").value(messageRequest.getContent()))
+                .andExpect(jsonPath("$.sender").value(messageRequest.getSender()))
+                .andExpect(jsonPath("$.receiver").value(messageRequest.getReceiver()));
+    }
+
+
+
 
 }
