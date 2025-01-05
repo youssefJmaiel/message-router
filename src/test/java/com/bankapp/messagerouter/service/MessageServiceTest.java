@@ -170,9 +170,10 @@ void testSaveMessage() {
         String newContent = "Updated Content";
         String newSender = "Updated Sender";
         String newReceiver = "Updated Receiver";
-
+        LocalDateTime timestamp = LocalDateTime.now();
+        Boolean processed = false;
         // Act
-        Message updatedMessage = messageService.editMessage(messageId, newContent, newSender, newReceiver);
+        Message updatedMessage = messageService.editMessage(messageId, newContent, newSender, newReceiver,timestamp,processed);
 
         // Assert
         assertNotNull(updatedMessage);
@@ -190,7 +191,7 @@ void testSaveMessage() {
         when(messageRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> messageService.editMessage(messageId, "New Content", "New Sender", "New Receiver"));
+        assertThrows(RuntimeException.class, () -> messageService.editMessage(messageId, "New Content", "New Sender", "New Receiver",LocalDateTime.now(),false));
         verify(messageRepository, times(1)).findById(messageId);
         verify(messageRepository, never()).save(any(Message.class));
     }

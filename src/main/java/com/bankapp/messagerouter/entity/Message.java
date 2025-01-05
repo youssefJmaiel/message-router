@@ -1,5 +1,6 @@
 package com.bankapp.messagerouter.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class Message implements Serializable {
     @NotNull
     private String receiver;
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
     @Column(nullable = false)

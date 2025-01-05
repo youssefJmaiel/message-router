@@ -4,6 +4,7 @@ import com.bankapp.messagerouter.dto.MessageRequest;
 import com.bankapp.messagerouter.entity.Message;
 import com.bankapp.messagerouter.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -125,6 +126,8 @@ class MessageControllerTest {
         messageRequest.setContent("Updated content");
         messageRequest.setSender("sender@example.com");
         messageRequest.setReceiver("receiver@example.com");
+        messageRequest.setTimestamp(LocalDateTime.now());
+        messageRequest.setProcessed(false);
 
         // Créez un objet Message simulé comme réponse du service
         Message updatedMessage = new Message();
@@ -132,21 +135,30 @@ class MessageControllerTest {
         updatedMessage.setContent(messageRequest.getContent());
         updatedMessage.setSender(messageRequest.getSender());
         updatedMessage.setReceiver(messageRequest.getReceiver());
+        updatedMessage.setTimestamp(messageRequest.getTimestamp());
+        updatedMessage.setProcessed(messageRequest.getProcessed());
 
         // Simulez le comportement du service
-        when(messageService.editMessage(messageId, messageRequest.getContent(), messageRequest.getSender(), messageRequest.getReceiver()))
+        when(messageService.editMessage(eq(messageId), eq(messageRequest.getContent()), eq(messageRequest.getSender()), eq(messageRequest.getReceiver()), eq(messageRequest.getTimestamp()), eq(messageRequest.getProcessed())))
                 .thenReturn(updatedMessage);
+
+        // Configure ObjectMapper with JavaTimeModule to handle LocalDateTime
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
         // Effectuez la requête PUT et vérifiez la réponse
         mockMvc.perform(put("/api/message/{id}", messageId)  // Assurez-vous d'inclure "/api" si nécessaire
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(messageRequest)))
+                        .content(objectMapper.writeValueAsString(messageRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(messageId))
                 .andExpect(jsonPath("$.content").value(messageRequest.getContent()))
                 .andExpect(jsonPath("$.sender").value(messageRequest.getSender()))
-                .andExpect(jsonPath("$.receiver").value(messageRequest.getReceiver()));
+                .andExpect(jsonPath("$.receiver").value(messageRequest.getReceiver()))
+                .andExpect(jsonPath("$.timestamp").exists())  // Ensure timestamp is included in the response
+                .andExpect(jsonPath("$.processed").value(messageRequest.getProcessed()));
     }
+
 
 
 

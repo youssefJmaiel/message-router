@@ -88,7 +88,7 @@ public class MessageService {
         messageRepository.deleteById(id);
     }
 
-    public Message editMessage(Long id, String newContent, String newSender, String newReceiver) {
+    public Message editMessage(Long id, String newContent, String newSender, String newReceiver,LocalDateTime timestamp,Boolean processed) {
         // Rechercher le message par ID
         Message existingMessage = messageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Message not found with ID: " + id));
@@ -102,6 +102,12 @@ public class MessageService {
         }
         if (newReceiver != null) {
             existingMessage.setReceiver(newReceiver);
+        }
+        if (timestamp != null) {
+            existingMessage.setTimestamp(timestamp);
+        }
+        if (processed != null) {
+            existingMessage.setProcessed(processed);
         }
 
         // Sauvegarder les modifications

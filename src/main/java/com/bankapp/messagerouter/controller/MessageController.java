@@ -96,7 +96,9 @@ public class MessageController {
                 id,
                 messageRequest.getContent(),
                 messageRequest.getSender(),
-                messageRequest.getReceiver()
+                messageRequest.getReceiver(),
+                messageRequest.getTimestamp(),
+                messageRequest.getProcessed()
         );
 
         return ResponseEntity.ok(updatedMessage);
